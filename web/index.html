@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#102a43" />
+    <title>JUA Map — Terminal 1</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./map3d.css" />
+  </head>
+  <body>
+    <main class="map-app" aria-label="Peta Terminal 1 Bandara Juanda">
+      <section class="map-canvas" aria-label="Peta 2.5D Terminal 1 lantai dasar">
+        <div class="map-scene" id="map-scene" aria-live="polite">
+          <p class="map-loading">Memuat denah Terminal 1…</p>
+        </div>
+
+        <div class="orientation" aria-label="Orientasi relatif denah">
+          <span class="orientation-arrow" aria-hidden="true">↑</span>
+          <span>DENAH</span>
+        </div>
+
+        <div class="view-controls" aria-label="Kontrol tampilan peta">
+          <button type="button" class="control-button" id="zoom-in" aria-label="Perbesar peta">+</button>
+          <button type="button" class="control-button" id="zoom-out" aria-label="Perkecil peta">−</button>
+          <button type="button" class="control-button" id="turn-left" aria-label="Putar peta ke kiri">↶</button>
+          <button type="button" class="control-button" id="turn-right" aria-label="Putar peta ke kanan">↷</button>
+          <button type="button" class="control-button" id="tilt-up" aria-label="Lihat lebih dari atas">↑</button>
+          <button type="button" class="control-button" id="tilt-down" aria-label="Lihat lebih dari samping">↓</button>
+          <button type="button" class="control-button control-button--reset" id="top-view">Dari atas</button>
+          <button type="button" class="control-button control-button--reset" id="fit-map">Seluruh peta</button>
+          <button type="button" class="control-button control-button--reset" id="reset-view">Atur ulang</button>
+        </div>
+      </section>
+
+      <aside class="map-panel" aria-label="Informasi peta">
+        <div class="brand-row">
+          <div class="brand-mark" aria-hidden="true">JUA</div>
+          <p>INTERACTIVE WAYFINDING</p>
+        </div>
+
+        <div class="panel-heading">
+          <p class="eyebrow">Terminal 1</p>
+          <h1>Lantai dasar</h1>
+          <p class="panel-description">Eksplorasi ruang pada denah. Klik zona berwarna untuk melihat referensi zonanya.</p>
+        </div>
+
+        <label class="space-search" for="space-search">
+          <span class="search-symbol" aria-hidden="true">⌕</span>
+          <input id="space-search" type="search" autocomplete="off" placeholder="Cari zona, mis. Zona SVG 001" />
+        </label>
+
+        <p class="height-note">Tinggi visual bangunan: <strong>0,5</strong></p>
+
+        <section class="routing-panel" aria-labelledby="routing-title">
+          <div class="routing-heading">
+            <div>
+              <p class="eyebrow">Routing engine</p>
+              <h2 id="routing-title">Dijkstra</h2>
+            </div>
+            <output id="routing-status" class="routing-status">Membaca SVG…</output>
+          </div>
+
+          <label for="route-start">Titik awal</label>
+          <select id="route-start" disabled><option value="">Pilih node</option></select>
+          <label for="route-destination">Tujuan</label>
+          <select id="route-destination" disabled><option value="">Pilih node</option></select>
+          <div class="routing-actions">
+            <button type="button" id="calculate-route" disabled>Hitung rute</button>
+            <button type="button" id="clear-route" disabled>Hapus</button>
+          </div>
+          <p id="route-result" class="route-result">Klik node oranye untuk memilih titik awal dan tujuan.</p>
+        </section>
+
+        <section class="space-card" id="space-card" aria-live="polite">
+          <p class="eyebrow">Peta siap dieksplorasi</p>
+          <h2>Pilih sebuah zona</h2>
+          <p>Klik area berwarna pada peta atau cari referensi zona. Data tenant dan rute belum ditampilkan pada prototipe visual ini.</p>
+        </section>
+
+        <div class="map-legend" aria-label="Keterangan peta">
+          <p class="eyebrow">Kontrol kamera</p>
+          <ul>
+            <li>Drag kiri / satu jari: putar &amp; miringkan</li>
+            <li>Drag kanan / dua jari: geser</li>
+            <li>Scroll / cubit: zoom</li>
+            <li><span class="legend-dot legend-dot--door"></span>Oranye: pintu</li>
+            <li><span class="legend-dot legend-dot--junction"></span>Merah: belokan / persimpangan</li>
+          </ul>
+        </div>
+      </aside>
+    </main>
+
+    <template id="space-detail-template">
+      <p class="eyebrow">Space terpilih</p>
+      <h2></h2>
+      <p class="space-card__copy"></p>
+      <button type="button" class="focus-button">Fokuskan di peta</button>
+    </template>
+
+    <script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+    <script type="module" src="./map3d.js"></script>
+  </body>
+</html>
