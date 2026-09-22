@@ -1,26 +1,105 @@
-# Peta 3D Terminal 1
+# JUA Wayfinding — Terminal 1
 
-Jalankan dari folder `web`:
+Peta wayfinding dua lantai berbasis Three.js. Aplikasi ini sepenuhnya berjalan
+di browser; tidak memerlukan backend.
+
+## Menjalankan di komputer lokal
+
+Di folder `web`, jalankan sekali:
 
 ```sh
 npm install
-node server.js
 ```
 
-Buka http://127.0.0.1:4173. Library Three.js disajikan secara lokal.
+Lalu untuk menjalankan peta:
 
-Drag kiri atau satu jari untuk orbit, drag kanan atau dua jari untuk geser,
-scroll atau pinch untuk zoom. Tombol panah pada canvas mengatur orbit;
-Shift + panah menggeser. Home mengembalikan kamera. Tombol di layar juga
-menyediakan kontrol tersebut, tampak atas, serta seluruh peta.
+```sh
+npm run dev
+```
 
-`map3d.js` membaca SVG dan membangun ExtrudeGeometry, dengan sumbu Y sebagai
-tinggi. Ruang memiliki tinggi visual tetap 0,5 unit dan berdiri pada bidang tanah.
-Kamera dibatasi agar tidak berputar ke bawah bidang tanah.
-Geometri SVG asli tetap disimpan di assets tanpa perubahan. ID zona sementara
-bergantung pada urutan bentuk SVG dan belum cocok menjadi ID routing permanen.
+Buka alamat yang muncul di terminal, biasanya [http://127.0.0.1:4173](http://127.0.0.1:4173).
+Tekan `Ctrl + C` di terminal untuk menghentikan server.
 
-`routing.js` membaca node pintu oranye, node persimpangan merah, serta edge merah,
-lalu membentuk adjacency graph dan menjalankan Dijkstra. Jarak masih memakai unit
-peta sampai skala SVG dikalibrasi. Data tenant dan navigasi operasional belum ada.
-`app.js` adalah prototipe SVG lama; halaman sekarang memakai `map3d.js`.
+Untuk memeriksa logika routing tanpa membuka browser:
+
+```sh
+npm test
+```
+
+Untuk membuat versi siap unggah ke hosting statis:
+
+```sh
+npm run build
+```
+
+Hasilnya berada di folder `dist`.
+
+## Cara memakai peta
+
+- **Peta atas** memakai kamera ortografik. Geser untuk pan, gunakan roda mouse
+  untuk zoom; peta tidak dapat dirotasi.
+- **Eksplorasi 3D** memakai kamera perspektif. Tarik untuk melihat dari depan,
+  belakang, kanan, kiri, atau atas. Kedua lantai ditampilkan bersamaan.
+- Klik node pertama sebagai titik asal dan node kedua sebagai tujuan. Rute
+  Dijkstra digambar beserta penanda yang bergerak.
+- Saat rute berpindah lantai di mode peta, tombol lanjutan mengarahkan ke lantai
+  tujuan melalui eskalator terkait.
+
+## Posisi SVG
+
+Simpan SVG Figma di `assets` dengan nama berikut:
+
+```
+assets/T1-GF-Area.svg   # Ground Floor
+assets/T1-FF-Area.svg   # First Floor
+```
+
+Saat halaman direfresh, kedua SVG tersebut diurai ulang. Artinya perubahan file
+SVG langsung menjadi geometri peta baru, node, edge, dan kandidat eskalator.
+
+## Konvensi Figma untuk routing
+
+Routing dipisahkan dari visual bangunan. Semua titik dan garis harus berada di
+grup khusus agar parser tidak keliru menganggap detail denah sebagai rute.
+
+| Elemen | Konvensi ekspor SVG |
+| --- | --- |
+| Node lokasi/pintu | `circle` atau `ellipse` di grup bernama `node`, fill `#F58231` |
+| Node persimpangan | `circle` atau `ellipse` di grup bernama `node`, fill `#FF3B30` |
+| Edge | `line` atau `path` stroke `#FF3B30` yang menyentuh node di kedua ujung |
+| Eskalator | grup/rect bernama persis `Eskalator01`, `Eskalator02`, dan seterusnya |
+
+Nama eskalator tidak boleh mendapat akhiran ekspor duplikat seperti
+`Eskalator16_2`. Parser sengaja menolaknya agar peta tidak membuat konektor
+lantai yang salah. Untuk eskalator yang benar-benar menghubungkan lantai,
+gunakan satu ID unik dan sama di GF serta FF, lalu beri node di dekat masing-
+masing ujungnya.
+
+Panjang dan arah ramp mengikuti footprint `EskalatorNN` di **Ground Floor**.
+Node GF dibuat pada satu ujung (bawah), node FF pada ujung lain (atas), dan
+tinggi antar lantai mengikuti `FLOOR_HEIGHT` di `src/config.js`.
+
+## Tinggi visual
+
+Nilai utama ada di `src/config.js` dan `src/svg-to-scene.js`:
+
+- Massa umum: `0.5` unit.
+- Grup/layer yang mengandung nama `tembok_pilar`, `tembok_kaca`, atau
+  `dinding`: `0.9` unit.
+- Layer yang mengandung `kaca` dibuat transparan.
+
+## Struktur sumber
+
+```
+src/
+  main.js            # menyatukan scene, UI, dan interaksi
+  svg-to-scene.js    # parser SVG dan geometri 3D + LOD
+  routing.js         # graph dan algoritma Dijkstra
+  escalators.js      # connector ramp/tangga antar lantai
+  cameras.js         # kamera peta dan eksplorasi
+  floor-stack.js     # menumpuk dan mengisolasi lantai
+  route-renderer.js  # kurva rute dan penanda bergerak
+  interaction.js     # klik node
+  lod.js             # pemilihan level of detail berdasarkan zoom
+  ui.js              # kontrol antarmuka
+```
